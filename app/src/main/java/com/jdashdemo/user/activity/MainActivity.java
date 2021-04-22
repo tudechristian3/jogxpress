@@ -2,8 +2,11 @@ package com.jdashdemo.user.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -14,7 +17,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
@@ -29,6 +38,7 @@ import com.jdashdemo.user.fragment.MessageFragment;
 import com.jdashdemo.user.fragment.ProfileFragment;
 import com.jdashdemo.user.models.User;
 import com.jdashdemo.user.utils.GpsUtils;
+import com.jdashdemo.user.utils.SettingPreference;
 import com.jdashdemo.user.utils.api.ServiceGenerator;
 import com.jdashdemo.user.utils.api.service.UserService;
 import com.jdashdemo.user.models.FiturModel;
@@ -62,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView navigation;
     int previousSelect = 0;
     private boolean isGPS = false;
-
+    SharedPreferences prf;
 
     public static MainActivity getInstance() {
         return mainActivity;
@@ -212,6 +222,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        prf = getSharedPreferences("PREFS", 0);
+                        SharedPreferences.Editor editor = prf.edit();
+                        editor.putBoolean("showDialog", true);
+                        editor.clear();
+                        editor.apply();
                         finish();
                     }
                 })

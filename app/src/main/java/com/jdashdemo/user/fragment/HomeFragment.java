@@ -4,9 +4,12 @@ import android.animation.ArgbEvaluator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -15,10 +18,14 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -47,12 +54,15 @@ import com.jdashdemo.user.item.MerchantItem;
 import com.jdashdemo.user.item.MerchantNearItem;
 import com.jdashdemo.user.item.RatingItem;
 import com.jdashdemo.user.item.SliderItem;
+import com.jdashdemo.user.json.BeritaDetailRequestJson;
+import com.jdashdemo.user.json.BeritaDetailResponseJson;
 import com.jdashdemo.user.json.GetHomeRequestJson;
 import com.jdashdemo.user.json.GetHomeResponseJson;
 import com.jdashdemo.user.json.GetMerchantbyCatRequestJson;
 import com.jdashdemo.user.json.MerchantByCatResponseJson;
 import com.jdashdemo.user.json.MerchantByNearResponseJson;
 import com.jdashdemo.user.models.AllFiturModel;
+import com.jdashdemo.user.models.BeritaModel;
 import com.jdashdemo.user.models.CatMerchantModel;
 import com.jdashdemo.user.models.FiturDataModel;
 import com.jdashdemo.user.models.FiturModel;
@@ -60,6 +70,7 @@ import com.jdashdemo.user.models.MerchantModel;
 import com.jdashdemo.user.models.MerchantNearModel;
 import com.jdashdemo.user.models.PayuModel;
 import com.jdashdemo.user.models.User;
+import com.jdashdemo.user.utils.DatabaseHelper;
 import com.jdashdemo.user.utils.GpsUtils;
 import com.jdashdemo.user.utils.SettingPreference;
 import com.jdashdemo.user.utils.Utility;
@@ -70,7 +81,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -78,8 +88,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
-import androidx.viewpager2.widget.CompositePageTransformer;
-import androidx.viewpager2.widget.MarginPageTransformer;
 
 import io.realm.Realm;
 import me.relex.circleindicator.CircleIndicator;
@@ -88,6 +96,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.jdashdemo.user.utils.GpsUtils.GPS_REQUEST;
+import static java.util.Objects.requireNonNull;
 
 public class HomeFragment extends Fragment {
 
@@ -120,6 +129,8 @@ public class HomeFragment extends Fragment {
     private BottomSheetDialog mBottomSheetDialog;
     private Location locationN;
 
+    private  List<BeritaModel> disclaimerfeature;
+
 
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
@@ -130,12 +141,28 @@ public class HomeFragment extends Fragment {
 
     private Timer timer;
     private int current_position = 0;
+    boolean dialogShown = true;
 
+    private Boolean opendialog = false;
+
+    private int feature_category = 0;
+
+    SharedPreferences pref;
+
+    //for disclaimer
+    TextView title, tanggal, kategori;
+    String Id;
+    WebView description;
+    ImageView backButton, images, favourite;
+    RelativeLayout rlprogress;
+    private DatabaseHelper databaseHelper;
+    ArrayList<BeritaModel> list;
 
     @SuppressLint("MissingPermission")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View getView = inflater.inflate(R.layout.fragment_home, container, false);
+
         context = getContext();
         View bottom_sheet = getView.findViewById(R.id.bottom_sheet);
         mBehavior = BottomSheetBehavior.from(bottom_sheet);
@@ -171,6 +198,24 @@ public class HomeFragment extends Fragment {
         nodatanear = getView.findViewById(R.id.nodatanear);
         sp = new SettingPreference(context);
         RelativeLayout promo = getView.findViewById(R.id.promo);
+
+        //getData();
+
+        //Disclaimer
+        SharedPreferences preferences = context.getSharedPreferences("PREFS", 0);
+        boolean ifShowDialog = preferences.getBoolean("showDialog", true);
+
+        String category_name = sp.getSetting()[16];
+        String category_status = sp.getSetting()[17];
+
+        if(ifShowDialog || category_name == "Popup" || category_status == "1"){
+            disclaimer();
+        }
+
+
+
+
+
 
         fiturlist = new ArrayList<>();
 
@@ -385,10 +430,125 @@ public class HomeFragment extends Fragment {
         colors = colors_temp;
         shimmershow();
 
+
+
         return getView;
+
     }
 
+
+
+
+    private void disclaimer(){
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
+        dialog.setContentView(R.layout.dialog_disclaimer);
+        dialog.setCancelable(true);
+
+//        final String berita = disclaimerfeature
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(requireNonNull(dialog.getWindow()).getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        final ImageView close = dialog.findViewById(R.id.bt_close);
+//        final LinearLayout email = dialog.findViewById(R.id.email);
+//        final LinearLayout phone = dialog.findViewById(R.id.phone);
+//        final LinearLayout website = dialog.findViewById(R.id.website);
+        final WebView about = dialog.findViewById(R.id.disclaimerfeature);
+
+        String mimeType = "text/html";
+        String encoding = "utf-8";
+        String htmlText;
+        htmlText = sp.getSetting()[15];
+        String text = "<html dir=" + "><head>"
+                + "<style type=\"text/css\">@font-face {font-family: MyFont;src: url(\"file:///android_asset/fonts/Arial.ttf\")}body{font-family: MyFont;color: #000000;text-align:justify;line-height:1.2}"
+                + "</style></head>"
+                + "<body>"
+                + htmlText
+                + "</body></html>";
+
+        about.loadDataWithBaseURL(null, text, mimeType, encoding, null);
+
+//        phone.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                final int REQUEST_PHONE_CALL = 1;
+//                Intent callIntent = new Intent(Intent.ACTION_CALL);
+//                callIntent.setData(Uri.parse("tel:" + (sp.getSetting()[3])));
+//                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+//                        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
+//                    } else {
+//                        startActivity(callIntent);
+//                    }
+//                }
+//            }
+//        });
+//
+//        email.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String[] TO = {(sp.getSetting()[2])};
+//                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+//                emailIntent.setType("text/plain");
+//
+//                emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+//                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "halo");
+//                emailIntent.putExtra(Intent.EXTRA_TEXT, "email" + "\n");
+//                try {
+//                    startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+//                } catch (android.content.ActivityNotFoundException ex) {
+//                    Toast.makeText(getActivity(),
+//                            "There is no email client installed.", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+//
+//        website.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String url = (sp.getSetting()[4]);
+//                Intent i = new Intent(Intent.ACTION_VIEW);
+//                i.setData(Uri.parse(url));
+//                startActivity(i);
+//            }
+//        });
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                SharedPreferences preferences = context.getSharedPreferences("PREFS", 0);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean("showDialog", false);
+                editor.apply();
+                //storeDialogStatus();
+            }
+        });
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
+
+    }
+
+//    private void storeDialogStatus(){
+//        SharedPreferences mSharedPreferences = context.getSharedPreferences("CheckItem", MODE_PRIVATE);
+//        SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+//        mEditor.putBoolean("item", false);
+//        mEditor.apply();
+//    }
+//
+//    private boolean getDialogStatus(){
+//        SharedPreferences mSharedPreferences = context.getSharedPreferences("CheckItem", MODE_PRIVATE);
+//        return mSharedPreferences.getBoolean("item", false);
+//    }
+
+
+
+
+
     private void checkgps() {
+
         new GpsUtils(context).turnGPSOn(new GpsUtils.onGpsListener() {
             @Override
             public void gpsStatus(boolean isGPSEnable) {
@@ -407,7 +567,6 @@ public class HomeFragment extends Fragment {
                         wayLongitude = location.getLongitude();
 //                        txtLocation.setText(String.format(Locale.US, "%s - %s", wayLatitude, wayLongitude));
                         gethome(location);
-
                     }
                     else{
                         checkgps();
@@ -427,7 +586,6 @@ public class HomeFragment extends Fragment {
 
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
-
         }
     }
     public void buildAlertMessageNoGps() {
@@ -460,6 +618,7 @@ public class HomeFragment extends Fragment {
             isGPS = true;
             Intent intent = new Intent(getActivity(), MainActivity.class);
             startActivity(intent);
+
 //            getlocation();
         }
     }
@@ -479,6 +638,7 @@ public class HomeFragment extends Fragment {
         shimerreview.startShimmerAnimation();
         shimerPromo.startShimmerAnimation();
         saldo.setVisibility(View.GONE);
+        //disclaimer();
     }
 
     private void shimmertutup() {
@@ -501,7 +661,6 @@ public class HomeFragment extends Fragment {
         shimerPromo.stopShimmerAnimation();
         getShimmerchantnear.stopShimmerAnimation();
         getShimmerchantnear.setVisibility(View.GONE);
-
         saldo.setVisibility(View.VISIBLE);
     }
 
@@ -518,9 +677,10 @@ public class HomeFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<GetHomeResponseJson> call, @NonNull Response<GetHomeResponseJson> response) {
                 if (response.isSuccessful()) {
-                    if (Objects.requireNonNull(response.body()).getMessage().equalsIgnoreCase("success")) {
+                    if (requireNonNull(response.body()).getMessage().equalsIgnoreCase("success")) {
                         shimmertutup();
                         PayuModel payu = response.body().getPayu().get(0);
+                        BeritaModel berita = response.body().getBerita().get(0);
                         sp.updateCurrency(response.body().getCurrency());
                         sp.updateabout(response.body().getAboutus());
                         sp.updateemail(response.body().getEmail());
@@ -536,6 +696,11 @@ public class HomeFragment extends Fragment {
                         sp.updatePayusalt(payu.getPayusalt());
                         sp.updatePayumerchantkey(payu.getPayukey());
                         sp.updatePayuActive(payu.getActive());
+                        sp.updatedisclaimer(berita.getContent());
+                        sp.updatedisclaimercategory(berita.getKategori());
+                        sp.updatedisclaimerstatus(berita.getStatus_berita());
+
+
 
                         Utility.currencyTXT2(saldo, response.body().getSaldo(), context);
 
@@ -602,6 +767,7 @@ public class HomeFragment extends Fragment {
                             merchantItem = new MerchantItem(getActivity(), click, R.layout.item_merchant);
                             rvmerchant.setAdapter(merchantItem);
                             catMerchantItem = new CatMerchantItem(getActivity(), response.body().getCatmerchant(), R.layout.item_cat_merchant, new CatMerchantItem.OnItemClickListener() {
+                                @SuppressLint("MissingPermission")
                                 @Override
                                 public void onItemClick(final CatMerchantModel item) {
 
@@ -638,6 +804,7 @@ public class HomeFragment extends Fragment {
                             rvmerchantnear.setAdapter(merchantNearItem);
 
                             catMerchantNearItem = new CatMerchantNearItem(getActivity(), response.body().getCatmerchant(), R.layout.item_cat_merchant, new CatMerchantNearItem.OnItemClickListener() {
+                                @SuppressLint("MissingPermission")
                                 @Override
                                 public void onItemClick(final CatMerchantModel item) {
                                     clicknear.clear();
@@ -669,7 +836,9 @@ public class HomeFragment extends Fragment {
                             realm.beginTransaction();
                             loginUser.setWalletSaldo(Long.parseLong(response.body().getSaldo()));
                             realm.commitTransaction();
+                            //disclaimer();
                         }
+
                     } else {
                         Realm realm = BaseApp.getInstance(context).getRealmInstance();
                         realm.beginTransaction();
@@ -733,7 +902,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<MerchantByCatResponseJson> call, @NonNull Response<MerchantByCatResponseJson> response) {
                 if (response.isSuccessful()) {
-                    if (Objects.requireNonNull(response.body()).getMessage().equalsIgnoreCase("success")) {
+                    if (requireNonNull(response.body()).getMessage().equalsIgnoreCase("success")) {
                         click = response.body().getData();
                         shimmerchantpromo.setVisibility(View.GONE);
                         rvmerchant.setVisibility(View.VISIBLE);
@@ -771,7 +940,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<MerchantByNearResponseJson> call, @NonNull Response<MerchantByNearResponseJson> response) {
                 if (response.isSuccessful()) {
-                    if (Objects.requireNonNull(response.body()).getMessage().equalsIgnoreCase("success")) {
+                    if (requireNonNull(response.body()).getMessage().equalsIgnoreCase("success")) {
                         clicknear = response.body().getData();
                         getShimmerchantnear.setVisibility(View.GONE);
                         rvmerchantnear.setVisibility(View.VISIBLE);
@@ -810,6 +979,7 @@ public class HomeFragment extends Fragment {
         realm.copyToRealm(user);
         realm.commitTransaction();
         BaseApp.getInstance(context).setLoginUser(user);
+        //disclaimer();
     }
 
     private void sheetlist() {
@@ -829,7 +999,7 @@ public class HomeFragment extends Fragment {
         mBottomSheetDialog = new BottomSheetDialog(context);
         mBottomSheetDialog.setContentView(mDialog);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Objects.requireNonNull(mBottomSheetDialog.getWindow()).addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            requireNonNull(mBottomSheetDialog.getWindow()).addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
 
         mBottomSheetDialog.show();
@@ -840,6 +1010,35 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+
+   // private void getData() {
+//        User loginUser = BaseApp.getInstance(context).getLoginUser();
+//        UserService userService = ServiceGenerator.createService(
+//                UserService.class, loginUser.getNoTelepon(), loginUser.getPassword());
+//        GetHomeRequestJson param = new GetHomeRequestJson();
+//        param.setId(loginUser.getId());
+//        param.setPhone(loginUser.getNoTelepon());
+//        userService.home(param).enqueue(new Callback<GetHomeResponseJson>() {
+//            @Override
+//            public void onResponse(@NonNull Call<GetHomeResponseJson> call, @NonNull Response<GetHomeResponseJson> response) {
+//                if (response.isSuccessful()) {
+//                    if (requireNonNull(response.body()).getMessage().equalsIgnoreCase("success")) {
+//                        BeritaModel berita = response.body().getBerita().get(0);
+//                        //sp.updatedisclaimer(berita.getContent());
+//                        berita.getContent();
+//                        Toast.makeText(getContext(), berita.getContent(), Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(@NonNull Call<GetHomeResponseJson> call, @NonNull Throwable t) {
+//
+//            }
+//        });
+//    }
+
+
 
 
 }

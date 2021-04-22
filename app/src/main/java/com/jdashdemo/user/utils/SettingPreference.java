@@ -10,6 +10,9 @@ public class SettingPreference {
 
     private static String CURRENCY = "$";
     private static String ABOUTUS = "ABOUTUS";
+    private static String DISCLAIMER = "DISCLAIMER";
+    private static String DISCLAIMERCATEGORY = "DISCLAIMERCATEGORY";
+    private static String DISCLAIMERCATEGORYSTATUS = "DISCLAIMERCATEGORYSTATUS";
     private static String EMAIL = "EMAIL";
     private static String PHONE = "PHONE";
     private static String WEBSITE = "WEBSITE";
@@ -123,9 +126,28 @@ public class SettingPreference {
         editor.commit();
     }
 
+    //Disclaimer
+    public void updatedisclaimer(String string) {
+        editor = pref.edit();
+        editor.putString(DISCLAIMER, string);
+        editor.commit();
+    }
+
+    public void updatedisclaimercategory(String string) {
+        editor = pref.edit();
+        editor.putString(DISCLAIMERCATEGORY, string);
+        editor.commit();
+    }
+
+    public void updatedisclaimerstatus(String string) {
+        editor = pref.edit();
+        editor.putString(DISCLAIMERCATEGORYSTATUS, string);
+        editor.commit();
+    }
+
     public String[] getSetting() {
 
-        String[] settingan = new String[15];
+        String[] settingan = new String[18];
         settingan[0] = pref.getString(CURRENCY, "$");
         settingan[1] = pref.getString(ABOUTUS, "");
         settingan[2] = pref.getString(EMAIL, "");
@@ -141,6 +163,16 @@ public class SettingPreference {
         settingan[12] = pref.getString(PAYUMERCHANTID, "1234");
         settingan[13] = pref.getString(PAYUSALT, "1234");
         settingan[14] = pref.getString(PAYUACTIVE, "0");
+        settingan[15] = pref.getString(DISCLAIMER, "");
+        settingan[16] = pref.getString(DISCLAIMERCATEGORY, "");
+        settingan[17] = pref.getString(DISCLAIMERCATEGORYSTATUS, "");
         return settingan;
     }
+
+//    public String[] getFeatureDisclaimer() {
+//
+//        String[] featuredisclaimer = new String[1];
+//        featuredisclaimer[0] = pref.getString(DISCLAIMER, "");
+//        return featuredisclaimer;
+//    }
 }

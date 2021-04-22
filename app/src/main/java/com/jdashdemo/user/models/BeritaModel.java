@@ -39,6 +39,10 @@ public class BeritaModel extends RealmObject implements Serializable {
     @SerializedName("kategori")
     private String kategori;
 
+    @Expose
+    @SerializedName("status_berita")
+    private String status_berita;
+
 
 
     public String getIdberita() {
@@ -87,6 +91,14 @@ public class BeritaModel extends RealmObject implements Serializable {
 
     public void setKategori(String kategori) {
         this.kategori = kategori;
+    }
+
+    public String getStatus_berita(){
+        return status_berita;
+    }
+
+    public void setStatus_berita(String status_berita){
+        this.status_berita = status_berita;
     }
 
 

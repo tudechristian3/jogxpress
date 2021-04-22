@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.jdashdemo.user.R;
 import com.jdashdemo.user.activity.AllMerchantActivity;
+import com.jdashdemo.user.activity.NextDayDeliveryActivity;
 import com.jdashdemo.user.activity.RentCarActivity;
 import com.jdashdemo.user.activity.RideCarActivity;
 import com.jdashdemo.user.activity.SendActivity;
@@ -105,6 +106,19 @@ public class AllFiturItem extends RecyclerView.Adapter<AllFiturItem.ItemRowHolde
                     i.putExtra("FiturKey", singleItem.getIdFitur());
                     i.putExtra("job", singleItem.getJob());
                     i.putExtra("icon", singleItem.getIcon());
+                    mContext.startActivity(i);
+
+                }
+            });
+        }
+
+        if(singleItem.getHome().equals("5")){
+            holder.background.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(mContext, NextDayDeliveryActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    i.putExtra("FiturKey", singleItem.getIdFitur());
                     mContext.startActivity(i);
 
                 }

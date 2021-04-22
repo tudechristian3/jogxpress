@@ -7,9 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jdashdemo.user.R;
 import com.jdashdemo.user.activity.AllMerchantActivity;
+import com.jdashdemo.user.activity.NextDayDeliveryActivity;
 import com.jdashdemo.user.activity.RentCarActivity;
 import com.jdashdemo.user.activity.RideCarActivity;
 import com.jdashdemo.user.activity.SendActivity;
@@ -110,6 +112,16 @@ public class FiturItem extends RecyclerView.Adapter<FiturItem.ItemRowHolder> {
                         Intent i = new Intent(mContext, AllMerchantActivity.class);
                         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         i.putExtra("FiturKey", singleItem.getIdFitur());
+                        mContext.startActivity(i);
+
+                    }
+                });
+                break;
+            case "5":
+                holder.background.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(mContext, NextDayDeliveryActivity.class);
                         mContext.startActivity(i);
 
                     }

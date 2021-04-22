@@ -8,6 +8,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -203,6 +204,7 @@ public class AllMerchantActivity extends AppCompatActivity {
                             rvmerchantnear.setAdapter(merchantNearItem);
 
                             catMerchantNearItem = new CatMerchantNearItem(AllMerchantActivity.this, response.body().getKategori(), R.layout.item_cat_merchant, new CatMerchantNearItem.OnItemClickListener() {
+                                @SuppressLint("MissingPermission")
                                 @Override
                                 public void onItemClick(final CatMerchantModel item) {
                                     clicknear.clear();

@@ -1,6 +1,7 @@
 package com.jdashdemo.user.activity;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -16,8 +17,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -28,13 +32,20 @@ import com.jdashdemo.user.R;
 import com.jdashdemo.user.constants.Constants;
 import com.jdashdemo.user.fragment.EnableLlocationFragment;
 import com.jdashdemo.user.models.User;
+import com.jdashdemo.user.utils.SettingPreference;
 
+import java.security.AccessControlContext;
 import java.util.Objects;
+
+import static java.security.AccessController.getContext;
+
+//import static java.security.AccessController.getContext;
 
 
 public class SplashActivity extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +166,8 @@ public class SplashActivity extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Objects.requireNonNull(notificationManager).cancel(0);
     }
+
+
 
 
 }
