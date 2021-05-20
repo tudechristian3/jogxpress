@@ -239,7 +239,8 @@ public class SendDetailActivity extends AppCompatActivity {
 
             this.harga = biayaTotal;
             final long finalBiayaTotal = biayaTotal;
-            String totalbiaya = String.valueOf(biayaTotal);
+            //String totalbiaya = String.valueOf(biayaTotal);
+            String totalbiaya = String.valueOf(Math.round(biayaTotal / 100.0) * 100.0);
             Utility.currencyTXT(priceText, totalbiaya, this);
 
 

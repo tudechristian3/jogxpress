@@ -13,6 +13,7 @@ public class SettingPreference {
     private static String DISCLAIMER = "DISCLAIMER";
     private static String DISCLAIMERCATEGORY = "DISCLAIMERCATEGORY";
     private static String DISCLAIMERCATEGORYSTATUS = "DISCLAIMERCATEGORYSTATUS";
+    private static String DISCLAIMERCATEGORYID = "DISCLAIMERCATEGORYID";
     private static String EMAIL = "EMAIL";
     private static String PHONE = "PHONE";
     private static String WEBSITE = "WEBSITE";
@@ -144,6 +145,7 @@ public class SettingPreference {
         editor.putString(DISCLAIMERCATEGORYSTATUS, string);
         editor.commit();
     }
+
 
     public String[] getSetting() {
 

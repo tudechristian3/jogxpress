@@ -205,14 +205,18 @@ public class HomeFragment extends Fragment {
         SharedPreferences preferences = context.getSharedPreferences("PREFS", 0);
         boolean ifShowDialog = preferences.getBoolean("showDialog", true);
 
-        String category_name = sp.getSetting()[16];
+        //String category_name = "Insider updates";
         String category_status = sp.getSetting()[17];
+        String category_description = sp.getSetting()[15];
 
-        if(ifShowDialog || category_name == "Popup" || category_status == "1"){
+        String category_name = sp.getSetting()[16];
+
+        String cod_true = preferences.getString("checked", "");
+//        Toast.makeText(context, cod_true, Toast.LENGTH_SHORT).show();
+
+        if(ifShowDialog && category_name.equals("Popup") && category_status.equals("1")){
             disclaimer();
         }
-
-
 
 
 
@@ -440,6 +444,9 @@ public class HomeFragment extends Fragment {
 
 
     private void disclaimer(){
+        SharedPreferences preferences = context.getSharedPreferences("PREFS", 0);
+        String cod_true = preferences.getString("checked", "");
+        String category_name = sp.getSetting()[16];
         final Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
         dialog.setContentView(R.layout.dialog_disclaimer);
@@ -455,20 +462,24 @@ public class HomeFragment extends Fragment {
 //        final LinearLayout email = dialog.findViewById(R.id.email);
 //        final LinearLayout phone = dialog.findViewById(R.id.phone);
 //        final LinearLayout website = dialog.findViewById(R.id.website);
-        final WebView about = dialog.findViewById(R.id.disclaimerfeature);
+        //if(cod_true.equals("false") && category_name.equals("Insider updates")){
+            final WebView about = dialog.findViewById(R.id.disclaimerfeature);
+            String mimeType = "text/html";
+            String encoding = "utf-8";
+            String htmlText;
+            htmlText = sp.getSetting()[15];
+            String text = "<html dir=" + "><head>"
+                    + "<style type=\"text/css\">@font-face {font-family: MyFont;src: url(\"file:///android_asset/fonts/Arial.ttf\")}body{font-family: MyFont;color: #000000;text-align:justify;line-height:1.2}"
+                    + "</style></head>"
+                    + "<body>"
+                    + htmlText
+                    + "</body></html>";
 
-        String mimeType = "text/html";
-        String encoding = "utf-8";
-        String htmlText;
-        htmlText = sp.getSetting()[15];
-        String text = "<html dir=" + "><head>"
-                + "<style type=\"text/css\">@font-face {font-family: MyFont;src: url(\"file:///android_asset/fonts/Arial.ttf\")}body{font-family: MyFont;color: #000000;text-align:justify;line-height:1.2}"
-                + "</style></head>"
-                + "<body>"
-                + htmlText
-                + "</body></html>";
+            about.loadDataWithBaseURL(null, text, mimeType, encoding, null);
+        //}
 
-        about.loadDataWithBaseURL(null, text, mimeType, encoding, null);
+        //}
+
 
 //        phone.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -699,8 +710,17 @@ public class HomeFragment extends Fragment {
                         sp.updatedisclaimer(berita.getContent());
                         sp.updatedisclaimercategory(berita.getKategori());
                         sp.updatedisclaimerstatus(berita.getStatus_berita());
+                        //sp.updatedisclaimercategoryid(berita.getid_kategori());
 
-
+                        //beritaItem
+//                        String latest_news = String.valueOf(berita.getKategori().equals("Insider updates"));
+//                        String latest_content = berita.getContent();
+//                        String latest = berita.toString();
+//
+//                        SharedPreferences preferences = context.getSharedPreferences("PREFS", 0);
+//                        SharedPreferences.Editor editor = preferences.edit();
+//                        editor.putString("checked", latest);
+//                        editor.commit();
 
                         Utility.currencyTXT2(saldo, response.body().getSaldo(), context);
 
