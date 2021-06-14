@@ -56,7 +56,7 @@ public class PromoItem extends RecyclerView.Adapter<PromoItem.ItemRowHolder> {
         if (!singleItem.getImagepromo().isEmpty()) {
             PicassoTrustAll.getInstance(mContext)
                     .load(Constants.IMAGESSLIDER + singleItem.getImagepromo())
-                    .resize(250, 250)
+                    //.resize(250, 250)
                     .into(holder.images);
         }
 

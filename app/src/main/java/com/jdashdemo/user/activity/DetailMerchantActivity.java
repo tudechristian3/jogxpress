@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -38,6 +39,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jdashdemo.user.utils.Log;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.FastItemAdapter;
 import com.mikepenz.fastadapter.listeners.ClickEventHook;
@@ -88,7 +90,8 @@ public class DetailMerchantActivity extends AppCompatActivity implements ItemIte
     CatItemItem catMerchantNearItem;
     LinearLayout llmerchantnear, shimlistnear, shimlistcatnear, lldetail;
     RelativeLayout nodatanear;
-
+    int hoursofDay,minofHours;
+    String timeSet,timeSetOut;
     private BottomSheetDialog mBottomSheetDialog;
     private View bottom_sheet;
 
@@ -284,7 +287,7 @@ public class DetailMerchantActivity extends AppCompatActivity implements ItemIte
                         if (!response.body().getFotomerchant().isEmpty()) {
                             PicassoTrustAll.getInstance(DetailMerchantActivity.this)
                                     .load(Constants.IMAGESMERCHANT + response.body().getFotomerchant())
-                                    .resize(250, 250)
+                                    //.resize(250, 250)
                                     .into(fotomerchant);
                         }
 
@@ -304,6 +307,7 @@ public class DetailMerchantActivity extends AppCompatActivity implements ItemIte
 
                         int jamBuka = Integer.parseInt(parsedJamBuka[0]), menitBuka = Integer.parseInt(parsedJamBuka[1]);
                         int jamTutup = Integer.parseInt(parsedJamTutup[0]), menitTutup = Integer.parseInt(parsedJamTutup[1]);
+//
 
                         int totalMenitBuka = (jamBuka * 60) + menitBuka;
                         int totalMenitTutup = (jamTutup * 60) + menitTutup;
@@ -330,7 +334,32 @@ public class DetailMerchantActivity extends AppCompatActivity implements ItemIte
                                 startActivity(i);
                             }
                         });
-                        hours.setText("Open Hours: " + Objects.requireNonNull(response.body()).getBukamerchant() + "-" + response.body().getTutupmerchant());
+
+                        if (jamBuka > 12) {
+                            jamBuka -= 12;
+                            timeSet = "PM";
+                        } else if (jamBuka == 0) {
+                            jamBuka += 12;
+                            timeSet = "AM";
+                        } else if (jamBuka == 12)
+                            timeSet = "PM";
+                        else
+                            timeSet = "AM";
+
+                        if (jamTutup > 12) {
+                            jamTutup -= 12;
+                            timeSetOut = "PM";
+                        } else if (jamTutup == 0) {
+                            jamTutup += 12;
+                            timeSetOut = "AM";
+                        } else if (jamTutup == 12)
+                            timeSetOut = "PM";
+                        else
+                            timeSetOut = "AM";
+
+
+                        hours.setText("Open Hours: " + jamBuka + timeSet + "-" + jamTutup + timeSetOut);
+                        //hours.setText("Open Hours: " + Objects.requireNonNull(response.body()).getBukamerchant()+ timeSet + "-" + response.body().getTutupmerchant() + timeSetOut);
                         kategori.setText(response.body().getKategorimerchant() + " " + getString(R.string.text_with_bullet) + " " + distance + "Km");
 
 
@@ -572,7 +601,7 @@ public class DetailMerchantActivity extends AppCompatActivity implements ItemIte
 
             PicassoTrustAll.getInstance(this)
                     .load(Constants.IMAGESITEM + Objects.requireNonNull(selectedItem).getFoto_item())
-                    .resize(250, 250)
+                    //.resize(250, 250)
                     .into(imageView);
 
         if (selectedItem.getStatus_promo().equals("1")) {

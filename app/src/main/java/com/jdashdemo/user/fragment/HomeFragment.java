@@ -214,7 +214,7 @@ public class HomeFragment extends Fragment {
         String cod_true = preferences.getString("checked", "");
 //        Toast.makeText(context, cod_true, Toast.LENGTH_SHORT).show();
 
-        if(ifShowDialog && category_name.equals("Popup") && category_status.equals("1")){
+        if(ifShowDialog && category_name.equals("Insider updates") && category_status.equals("1")){
             disclaimer();
         }
 
@@ -328,6 +328,8 @@ public class HomeFragment extends Fragment {
 
 
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            private int jumpPosition = -1;
+
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -356,6 +358,7 @@ public class HomeFragment extends Fragment {
 
             }
         });
+
 
         rvreview.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -884,9 +887,14 @@ public class HomeFragment extends Fragment {
     private Runnable sliderRunnable = new Runnable() {
         @Override
         public void run() {
-            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
+            if(viewPager.getCurrentItem() == adapter.getCount() - 1){
+                viewPager.setCurrentItem(0);
+            }else{
+                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+            }
         }
     };
+
 
 //    private void createSlide(){
 //        final Handler handler = new Handler();

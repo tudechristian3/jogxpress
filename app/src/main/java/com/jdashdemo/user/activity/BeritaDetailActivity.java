@@ -93,7 +93,7 @@ public class BeritaDetailActivity extends AppCompatActivity {
                     if (!berita.getFotoberita().isEmpty()) {
                         PicassoTrustAll.getInstance(BeritaDetailActivity.this)
                                 .load(Constants.IMAGESBERITA + berita.getFotoberita())
-                                .resize(250,250)
+                                //.resize(250,250)
                                 .into(images);
                     }
                     Date myDate = null;

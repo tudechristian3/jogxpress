@@ -211,6 +211,15 @@ public class SendDetailActivity extends AppCompatActivity {
 
         saldoWallet = String.valueOf(userLogin.getWalletSaldo());
 
+
+        User userLoginversion2 = BaseApp.getInstance(this).getLoginUser();
+
+
+
+        //sender name
+        sendername.setText(userLoginversion2.getFname());
+        senderphone.setText(userLoginversion2.getPhone());
+
         Utility.currencyTXT(saldotext, saldoWallet, this);
 
         checkedpaywallet = "0";
@@ -226,13 +235,13 @@ public class SendDetailActivity extends AppCompatActivity {
 
         String biaya = String.valueOf(biayaminimum);
         long biayaTotal = (long) (Double.parseDouble(Objects.requireNonNull(price)) * km);
-        if (km <= 2.9) {
+        if (biayaTotal < Double.parseDouble(Objects.requireNonNull(biayaminimum))) {
             this.harga = Long.parseLong(biayaminimum);
             biayaTotal = Long.parseLong(biayaminimum);
             Utility.currencyTXT(priceText, biaya, this);
         }
         else{
-            Utility.currencyTXT1(priceText, String.valueOf(biayaTotal), this);
+            Utility.currencyTXT1(cost, price, this);
         }
 
 
@@ -482,7 +491,8 @@ public class SendDetailActivity extends AppCompatActivity {
                         finalCode = promokode.getText().toString();
                         if (response.body().getType().equals("persen")) {
                             promocode = (Long.parseLong(response.body().getNominal()) * harga) / 100;
-                        } else {
+                        }
+                        else {
                             promocode = Long.parseLong(response.body().getNominal());
                         }
                         Log.e("", String.valueOf(promocode));

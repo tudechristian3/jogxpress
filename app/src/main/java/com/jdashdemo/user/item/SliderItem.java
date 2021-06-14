@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -29,7 +30,6 @@ public class SliderItem extends PagerAdapter {
 
     private List<PromoModel> models;
     private Context context;
-
     public SliderItem(List<PromoModel> models, Context context) {
         this.models = models;
         this.context = context;
@@ -48,6 +48,7 @@ public class SliderItem extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
+
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view = layoutInflater.inflate(R.layout.item_slider, container, false);
 
@@ -57,10 +58,19 @@ public class SliderItem extends PagerAdapter {
         imageView = view.findViewById(R.id.image);
         slider = view.findViewById(R.id.slider);
 
+//        models.addAll(models);
+//        notifyDataSetChanged();
+
+        //infinate slide
+//        if(position ==  models.size() - 2){
+//            viewPager.post(sliderRunnable);
+//        }
+
         final PromoModel propertyModels = models.get(position);
         PicassoTrustAll.getInstance(context)
                 .load(Constants.IMAGESSLIDER + propertyModels.getFoto())
                 .placeholder(R.drawable.image_placeholder)
+                //.resize(350, 350)
                 .into(imageView);
 
         if (propertyModels.getTypepromosi().equals("link")) {

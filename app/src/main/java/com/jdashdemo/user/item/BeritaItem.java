@@ -57,7 +57,7 @@ public class BeritaItem extends RecyclerView.Adapter<BeritaItem.ItemRowHolder> {
         if (!singleItem.getFotoberita().isEmpty()) {
             PicassoTrustAll.getInstance(mContext)
                     .load(Constants.IMAGESBERITA + singleItem.getFotoberita())
-                    .resize(250, 250)
+                    //.resize(250, 250)
                     .into(holder.images);
         }
 
